@@ -13,10 +13,12 @@ GUI-based items hiring program that allows to:
 __author__ = 'Luke Veltjens-Swan'
 
 from assignment1 import load_items, save_items
-
+from itemlist import ItemList
 
 def main():
-    items = load_items()
-    save_items(items)
+    source_items = load_items()
+    items = ItemList(source_items)
+    save_items(items.export_items())
 
 main()
+
