@@ -1,2 +1,35 @@
 BoxLayout:
     orientation: 'vertical'
+
+    BoxLayout:
+        orientation: 'horizontal'
+
+        BoxLayout:
+            size_hint_x: .3
+            orientation: 'vertical'
+            Button:
+                id: buttonList
+                text: 'List Items'
+                on_release: app.press_list()
+            Button:
+                id: buttonHire
+                text: 'Hire Items'
+                on_release: app.press_hire()
+            Button:
+                id: buttonReturn
+                text: 'Return Items'
+                on_release: app.press_return()
+            Button:
+                text: 'Confirm'
+                on_release: app.press_confirm()
+            Button:
+                text: 'Add New Item'
+                on_release: app.press_add()
+
+        GridLayout:
+            id: itemsGrid
+            cols: 2
+
+    Label:
+        size_hint_y: .1
+        text: app.status_text
