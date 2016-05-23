@@ -160,4 +160,3 @@ def return_item(number, items):
         return
     items[number] = (name, description, price, False)
     print("{} returned".format(name))
-

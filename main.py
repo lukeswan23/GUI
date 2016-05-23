@@ -12,13 +12,34 @@ GUI-based items hiring program that allows to:
 
 __author__ = 'Luke Veltjens-Swan'
 
+from kivy.app import App
+from kivy.lang import Builder
 from assignment1 import load_items, save_items
 from itemlist import ItemList
 
+
+class ItemsHiring(App):
+    """ Main application class """
+
+    def on_start(self):
+        """ load items from the CSV file on start """
+        source_items = load_items()
+        self.item_list = ItemList(source_items)
+
+    def on_stop(self):
+        """ save items to the CSV file on exit """
+        save_items(self.item_list.export_items())
+
+    def build(self):
+        """ build Kivy app from the kv file """
+        self.title = "Items Hiring"
+        self.root = Builder.load_file('app.kv')
+        return self.root
+
+
 def main():
-    source_items = load_items()
-    items = ItemList(source_items)
-    save_items(items.export_items())
+    app = ItemsHiring()
+    app.run()
+
 
 main()
-
