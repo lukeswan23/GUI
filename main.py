@@ -15,7 +15,7 @@ __author__ = 'Luke Veltjens-Swan'
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.button import Button
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 from enum import Enum
 from assignment1 import load_items, save_items
 from itemlist import ItemList
@@ -26,6 +26,12 @@ class Mode(Enum):
     listing = 1
     hiring = 2
     returning = 3
+
+
+class ItemButton(Button):
+    """ Item button class """
+    hired = BooleanProperty(False)
+    item_index = NumericProperty()
 
 
 class ItemsHiring(App):
@@ -52,9 +58,15 @@ class ItemsHiring(App):
 
     def create_item_buttons(self):
         """ Create the entry buttons and add them to the GUI """
-        for item in self.item_list.items:
-            button = Button(text=item.name)
+        for i, item in enumerate(self.item_list.items):
+            button = ItemButton(text=item.name, hired=item.hired, item_index=i)
+            button.bind(on_release=self.press_item)
             self.root.ids.itemsGrid.add_widget(button)
+
+    def clear_selection(self):
+        """ Clear any buttons that have been selected """
+        for instance in self.root.ids.itemsGrid.children:
+            instance.state = 'normal'
 
     def set_mode(self, mode):
         """ Switch between 'listing', 'hiring' and 'returning' modes """
@@ -70,7 +82,14 @@ class ItemsHiring(App):
         elif mode == Mode.returning:
             self.status_text = "Select available items to return"
             ids.buttonReturn.state = 'down'
+        self.clear_selection()
         self.mode = mode
+
+    def press_item(self, instance):
+        """ Handler for pressing an item button """
+        if instance.hired:
+            return
+        instance.state = 'normal' if instance.state == 'down' else 'down'
 
     def press_list(self):
         """ Handler for pressing the 'List Items' button """
