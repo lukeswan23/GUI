@@ -31,8 +31,12 @@ class Mode(Enum):
 class ItemButton(Button):
     """ Item button class """
     hired = BooleanProperty(False)
+    selected = BooleanProperty(False)
     item_index = NumericProperty()
 
+    def set_selected(self, selected):
+        self.selected = selected
+        self.state = 'down' if self.selected else 'normal'
 
 class ItemsHiring(App):
     """ Main application class """
@@ -66,7 +70,13 @@ class ItemsHiring(App):
     def clear_selection(self):
         """ Clear any buttons that have been selected """
         for instance in self.root.ids.itemsGrid.children:
-            instance.state = 'normal'
+            instance.set_selected(False)
+
+    def update_item_buttons(self):
+        """ Update colors of item buttons """
+        for instance in self.root.ids.itemsGrid.children:
+            item = self.item_list.items[instance.item_index]
+            instance.hired = item.hired
 
     def set_mode(self, mode):
         """ Switch between 'listing', 'hiring' and 'returning' modes """
@@ -77,19 +87,60 @@ class ItemsHiring(App):
             self.status_text = "Choose action from the left menu, then select items on the right"
             ids.buttonList.state = 'down'
         elif mode == Mode.hiring:
-            self.status_text = "Select available items to hire"
+            if self.item_list.count(hired=False) > 0:
+                self.status_text = "Select available items to hire"
+            else:
+                self.status_text = "No items available for hire"
             ids.buttonHire.state = 'down'
         elif mode == Mode.returning:
-            self.status_text = "Select available items to return"
+            if self.item_list.count(hired=True) > 0:
+                self.status_text = "Select available items to return"
+            else:
+                self.status_text = "No items are currently on hire"
             ids.buttonReturn.state = 'down'
         self.clear_selection()
         self.mode = mode
 
+    def show_details(self, item_index):
+        """ Display item details in the status bar """
+        item = self.item_list.items[item_index]
+        status = "out" if item.hired else "in"
+        self.status_text = "{}({}), ${:.2f} is {}".format(item.name, item.description, item.price, status)
+
+    def selecting_allowed(self, hired):
+        """ Check if item is selectable depending on hired status """
+        if self.mode == Mode.hiring and not hired:
+            return True
+        elif self.mode == Mode.returning and hired:
+            return True
+        return False
+
+    def show_selection_status(self):
+        """ Display selected items in the status bar """
+        names = []
+        total_price = 0
+        for i, button in enumerate(self.root.ids.itemsGrid.children):
+            item = self.item_list.items[button.item_index]
+            if button.selected:
+                names.append(item.name)
+                total_price += item.price
+        if len(names) == 0:
+            names = "no items"
+        else:
+            names = ", ".join(names)
+        if self.mode == Mode.hiring:
+            self.status_text = "Hiring: {} for ${:.2f}".format(names, total_price)
+        else:
+            self.status_text = "Returning: {}".format(names)
+
     def press_item(self, instance):
         """ Handler for pressing an item button """
-        if instance.hired:
+        if self.mode == Mode.listing:
+            self.show_details(instance.item_index)
             return
-        instance.state = 'normal' if instance.state == 'down' else 'down'
+        if self.selecting_allowed(instance.hired):
+            instance.set_selected(not instance.selected)
+        self.show_selection_status()
 
     def press_list(self):
         """ Handler for pressing the 'List Items' button """
@@ -105,7 +156,16 @@ class ItemsHiring(App):
 
     def press_confirm(self):
         """ Handler for pressing the 'Conrirm' button """
-        pass
+        for button in self.root.ids.itemsGrid.children:
+            if not button.selected:
+                continue
+            item = self.item_list.items[button.item_index]
+            if self.mode == Mode.hiring:
+                self.item_list.hire_item(button.item_index)
+            elif self.mode == Mode.returning:
+                self.item_list.return_item(button.item_index)
+        self.update_item_buttons()
+        self.set_mode(Mode.listing)
 
     def press_add(self):
         """ Handler for pressing the 'Add New Item' button """
@@ -118,4 +178,3 @@ def main():
 
 
 main()
-
