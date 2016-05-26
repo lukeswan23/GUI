@@ -77,7 +77,7 @@ class ItemsHiring(App):
             instance.set_selected(False)
 
     def update_item_buttons(self):
-        """ Update colors of item buttons """
+        """ Update colours of item buttons """
         for instance in self.root.ids.itemsGrid.children:
             item = self.item_list.items[instance.item_index]
             instance.hired = item.hired
