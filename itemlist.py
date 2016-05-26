@@ -7,7 +7,7 @@ class ItemList:
         self.items = []
         for item in source_items:
             (name, description, price, hired) = item
-            self.items.append(Item(name, description, price, hired))
+            self.add_item(name, description, price, hired)
 
     def export_items(self):
         """ returns a list of items prepared for saving """
@@ -33,3 +33,6 @@ class ItemList:
             if item.hired == hired:
                 total += 1
         return total
+
+    def add_item(self, name, description, price, hired):
+        self.items.append(Item(name, description, price, hired))

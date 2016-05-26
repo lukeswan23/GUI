@@ -6,6 +6,51 @@
 
 BoxLayout:
     orientation: 'vertical'
+    id: mainBox
+
+    Popup:
+        id: popup
+        title: "Add Item"
+        on_parent:
+            # Make popup disappear immediately
+            if self.parent == mainBox: self.parent.remove_widget(self)
+
+        BoxLayout:
+            id: inputs
+            orientation: 'vertical'
+            Label:
+                text: 'Item Name:'
+            TextInput:
+                id: itemName
+                value: ''
+                multiline: False
+                write_tab: False
+                font_size: 24
+            Label:
+                text: 'Description:'
+            TextInput:
+                id: itemDescription
+                value: ''
+                multiline: False
+                write_tab: False
+                font_size: 24
+            Label:
+                text: 'Price per day:'
+            TextInput:
+                id: itemPrice
+                value: ''
+                multiline: False
+                write_tab: False
+                font_size: 24
+            Button:
+                text: 'Save Item'
+                on_release: app.press_save(itemName.text, itemDescription.text, itemPrice.text)
+            Button:
+                text: 'Cancel'
+                on_release: app.close_popup()
+            Label:
+                text: app.status_text
+
 
     BoxLayout:
         orientation: 'horizontal'

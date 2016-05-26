@@ -60,12 +60,16 @@ class ItemsHiring(App):
         self.root = Builder.load_file('app.kv')
         return self.root
 
+    def create_item_button(self, item, item_index):
+        """ Create an item button for a certain item """
+        button = ItemButton(text=item.name, hired=item.hired, item_index=item_index)
+        button.bind(on_release=self.press_item)
+        self.root.ids.itemsGrid.add_widget(button)
+
     def create_item_buttons(self):
-        """ Create the entry buttons and add them to the GUI """
+        """ Create the item buttons and add them to the GUI """
         for i, item in enumerate(self.item_list.items):
-            button = ItemButton(text=item.name, hired=item.hired, item_index=i)
-            button.bind(on_release=self.press_item)
-            self.root.ids.itemsGrid.add_widget(button)
+            self.create_item_button(item, i)
 
     def clear_selection(self):
         """ Clear any buttons that have been selected """
@@ -169,7 +173,38 @@ class ItemsHiring(App):
 
     def press_add(self):
         """ Handler for pressing the 'Add New Item' button """
-        pass
+        self.status_text = "Enter details for new item"
+        self.root.ids.popup.open()
+
+    def press_save(self, name, description, price):
+        """ Handler for pressing the save button in the popup """
+        if not name or not description or not price:
+            self.status_text = "All fields must be completed"
+            return
+        try:
+            price = float(price)
+        except:
+            self.status_text = "Price must be a valid number"
+            return
+        if price <= 0:
+            self.status_text = "Price must not be negative or zero"
+            return
+        self.item_list.add_item(name, description, price, hired=False)
+        last_index = len(self.item_list.items) - 1
+        item = self.item_list.items[last_index]
+        self.create_item_button(item, last_index)
+        self.close_popup()
+
+    def close_popup(self):
+        """ Close the popup and clear input fields """
+        self.root.ids.popup.dismiss()
+        self.clear_fields()
+
+    def clear_fields(self):
+        """ Clear input fields in the popup """
+        self.root.ids.itemName.text = ""
+        self.root.ids.itemDescription.text = ""
+        self.root.ids.itemPrice.text = ""
 
 
 def main():
