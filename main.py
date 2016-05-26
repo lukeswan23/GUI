@@ -7,7 +7,7 @@ GUI-based items hiring program that allows to:
 - return items
 - add new items
 - save items to a file
-
+https://github.com/lukeveltjensswan/GUI
 """
 
 __author__ = 'Luke Veltjens-Swan'
